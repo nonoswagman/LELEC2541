@@ -4,10 +4,10 @@ import numpy as np
 import  matplotlib.pyplot as plt
 from sympy import symbols, solve
 
-id_vd="1M/data_MPW2230_Die1_20200708/Die1_SLVTL20_Wfp5_Nf32_vbg_0V_idvd_0p8V.mdm"
-extract_file="1M/data_MPW2230_Die1_20200708/Die1_SLVTL20_Wfp5_Nf32_vbg_0V_Spar_HF_cold_0V.mdm"#vd=0,vbg=0, vg =-0.2 ->0.9
-open_measure="1M/data_MPW2230_Die1_20200708/Die1_SLVTL20_Wfp5_Nf32_OPEN_Spar_HF.mdm"
-id_vg="1M/data_MPW2230_Die1_20200708/Die1_SLVTL20_Wfp5_Nf32_vbg_0V_idvg_50m.mdm"
+id_vd="Data/1M/data_MPW2230_Die1_20200708/Die1_SLVTL20_Wfp5_Nf32_vbg_0V_idvd_0p8V.mdm"
+extract_file="Data/1M/data_MPW2230_Die1_20200708/Die1_SLVTL20_Wfp5_Nf32_vbg_0V_Spar_HF_cold_0V.mdm"#vd=0,vbg=0, vg =-0.2 ->0.9
+open_measure="Data/1M/data_MPW2230_Die1_20200708/Die1_SLVTL20_Wfp5_Nf32_OPEN_Spar_HF.mdm"
+id_vg="Data/1M/data_MPW2230_Die1_20200708/Die1_SLVTL20_Wfp5_Nf32_vbg_0V_idvg_sat_800m.mdm"
 def mdm_reader_index(fname,measurement_index):
     f = open(fname, "r")    
     text = f.read()
@@ -102,18 +102,23 @@ def plot_id_vg( file_name,measurement_index, id_index , vg_index):
     id = [column[id_index] for column in measurement]
 
     # Tracer les valeurs de la deuxième colonne par rapport à celles de la première colonne
-    plt.plot(vg, id , linestyle='-')
+    
+    deriv_1=np.gradient(id,0.01)
+    
+    deriv_2=np.gradient(deriv_1,0.01)
+    indice_max=np.argmax(deriv_2)
+    print("Vth=",vg[indice_max])
+    #plt.plot(vg, id , linestyle='-')
+    plt.plot(vg, deriv_1 , linestyle='-',label="deriv_1")
+    plt.plot(vg, deriv_2 , linestyle='-',label="deriv_2")
     plt.xlabel('vg[V]')
     plt.ylabel('id[V]')
     plt.title('id vs vg curve for vd={} [V]'.format(vd))
     plt.grid(True)
+    plt.legend()
     plt.show()
-    deriv_1=np.gradient(id,0.01)
-    deriv_2=np.gradient(deriv_1,0.01)
-    indice_max=np.argmax(deriv_2)
-    print("Vth=",vg[indice_max])
 
-#plot_id_vg(id_vg,0,1,0)
+plot_id_vg(id_vg,0,1,0)
 def plot_S_parameter( measurement_index):
     data,info=_index(file_name,measurement_index)
     measurement=data[0]
@@ -494,4 +499,4 @@ def plot_intrinsic_parameter(file_name,measurement_index,extract_file,open_file)
     plt.show()
 
     
-plot_intrinsic_parameter(extract_file,0,extract_file,open_measure)
+#plot_intrinsic_parameter(extract_file,0,extract_file,open_measure)
